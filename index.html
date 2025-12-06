@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Calendar with Holidays & Time</title>
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body {
+        background: #f0f2f5;
+        display: flex; justify-content: center; align-items: center;
+        height: 100vh;
+    }
+
+    .container {
+        text-align: center;
+    }
+
+    .clock {
+        font-size: 32px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .calendar {
+        width: 350px; background: #fff; padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        margin: auto;
+    }
+
+    .header {
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .header h2 { font-size: 22px; }
+
+    button {
+        padding: 6px 10px; border: none; background: #4CAF50;
+        color: #fff; border-radius: 5px; cursor: pointer;
+    }
+    button:hover { background: #3b9a41; }
+
+    .weekdays, .days {
+        display: grid; grid-template-columns: repeat(7, 1fr);
+        text-align: center; margin-top: 10px;
+    }
+    .weekdays div { font-weight: bold; padding-bottom: 8px; }
+
+    .days div {
+        padding: 10px; border-radius: 5px; cursor: pointer;
+        position: relative;
+    }
+    .days div:hover { background: #e6e6e6; }
+
+    .today {
+        background: #4CAF50; color: white; font-weight: bold;
+    }
+
+    .holiday {
+        background: #ff4c4c !important;
+        color: white;
+        font-weight: bold;
+    }
+
+    .holiday:hover::after {
+        content: attr(data-title);
+        position: absolute;
+        bottom: -28px; left: 50%; transform: translateX(-50%);
+        background: #333; color: #fff;
+        padding: 4px 8px; font-size: 12px;
+        border-radius: 4px; white-space: nowrap;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ⏰ LIVE TIME -->
+    <div class="clock" id="clock">00:00:00</div>
+
+    <!-- 📅 CALENDAR -->
+    <div class="calendar">
+        <div class="header">
+            <button onclick="prevMonth()">❮</button>
+            <h2 id="month-year"></h2>
+            <button onclick="nextMonth()">❯</button>
+        </div>
+
+        <div class="weekdays">
+            <div>Sun</div><div>Mon</div><div>Tue</div>
+            <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+
+        <div class="days" id="days"></div>
+    </div>
+</div>
+
+<script>
+    // -----------------------------
+    // 🎉 Holidays List
+    // -----------------------------
+    const holidays = {
+        "1-1": "New Year",
+        "26-1": "Republic Day",
+        "15-8": "Independence Day",
+        "2-10": "Gandhi Jayanti",
+        "25-12": "Christmas",
+        "14-11": "Children's Day",
+        "5-9": "Teacher's Day",
+        "1-5": "Labour Day"
+    };
+
+    const monthYear = document.getElementById("month-year");
+    const daysDiv = document.getElementById("days");
+
+    let date = new Date();
+
+    // -----------------------------
+    // 📌 Render Calendar Function
+    // -----------------------------
+    function renderCalendar() {
+        let year = date.getFullYear();
+        let month = date.getMonth();
+
+        monthYear.innerHTML = date.toLocaleString("default", {
+            month: "long",
+            year: "numeric"
+        });
+
+        let firstDay = new Date(year, month, 1).getDay();
+        let lastDate = new Date(year, month + 1, 0).getDate();
+
+        daysDiv.innerHTML = "";
+
+        for (let i = 0; i < firstDay; i++) {
+            daysDiv.innerHTML += `<div></div>`;
+        }
+
+        let today = new Date();
+
+        for (let d = 1; d <= lastDate; d++) {
+            let classes = "";
+            let tooltip = "";
+
+            if (
+                d === today.getDate() &&
+                year === today.getFullYear() &&
+                month === today.getMonth()
+            ) {
+                classes = "today";
+            }
+
+            let key = `${d}-${month + 1}`;
+            if (holidays[key]) {
+                classes = "holiday";
+                tooltip = holidays[key];
+            }
+
+            daysDiv.innerHTML += `<div class="${classes}" data-title="${tooltip}">${d}</div>`;
+        }
+    }
+
+    function prevMonth() {
+        date.setMonth(date.getMonth() - 1);
+        renderCalendar();
+    }
+
+    function nextMonth() {
+        date.setMonth(date.getMonth() + 1);
+        renderCalendar();
+    }
+
+    renderCalendar();
+
+    // -----------------------------
+    // ⏰ LIVE CLOCK FUNCTION
+    // -----------------------------
+    function updateClock() {
+        let now = new Date();
+        let h = now.getHours().toString().padStart(2, '0');
+        let m = now.getMinutes().toString().padStart(2, '0');
+        let s = now.getSeconds().toString().padStart(2, '0');
+
+        document.getElementById("clock").innerText = `${h}:${m}:${s}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+
+</body>
+</html>
